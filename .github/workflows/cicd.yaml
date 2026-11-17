@@ -25,10 +25,12 @@ jobs:
       - name: Build and push Docker image
         env:
           ECR_REPOSITORY: ${{ secrets.ECR_REPO }}
-          IMAGE_TAG: latest
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
+          docker build --no-cache -t $ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $ECR_REPOSITORY:$IMAGE_TAG $ECR_REPOSITORY:latest
+          docker push $ECR_REPOSITORY:latest
 
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1.0.3
@@ -38,7 +40,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             aws ecr get-login-password --region ${{ secrets.AWS_DEFAULT_REGION }} | docker login --username AWS --password-stdin ${{ secrets.ECR_REPO }}
-            docker pull ${{ secrets.ECR_REPO }}:latest
+            docker pull ${{ secrets.ECR_REPO }}:${{ github.sha }}
             docker stop visa-app || true
             docker rm visa-app || true
-            docker run -d --name visa-app -p 8080:8080 ${{ secrets.ECR_REPO }}:latest
+            docker run -d --name visa-app -p 8080:8080 ${{ secrets.ECR_REPO }}:${{ github.sha }}
