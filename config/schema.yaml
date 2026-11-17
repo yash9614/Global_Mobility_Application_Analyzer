@@ -1,0 +1,12 @@
+columns:
+  continent: categorical
+  education_of_employee: categorical
+  has_job_experience: categorical
+  requires_job_training: categorical
+  no_of_employees: numerical
+  yr_of_estab: numerical
+  region_of_employment: categorical
+  prevailing_wage: numerical
+  unit_of_wage: categorical
+  full_time_position: categorical
+  case_status: target
