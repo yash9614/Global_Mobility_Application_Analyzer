@@ -1,30 +1,39 @@
+import joblib
+import pandas as pd
+
 class PredictionPipeline:
     def __init__(self):
-        pass
+        try:
+            self.model = joblib.load("model/visa_model.pkl")
+            print("Model loaded successfully")
+        except Exception as e:
+            print(f"Could not load model: {e}")
+            self.model = None
 
     def predict(self, data: dict):
-        # Simple rule-based scoring (temporary until we load a real model)
-        score = 0.5
+        if self.model is None:
+            return {"status": "Error", "probability": 0.0, "message": "Model not loaded"}
 
-        if data.get("education_of_employee") in ["Master's", "Doctorate"]:
-            score += 0.2
-        elif data.get("education_of_employee") == "Bachelor's":
-            score += 0.1
+        # Build a one-row DataFrame with the expected columns
+        row = {
+            "no_of_employees": data.get("no_of_employees", 500),
+            "yr_of_estab": data.get("yr_of_estab", 2010),
+            "prevailing_wage": data.get("prevailing_wage", 80000),
+            "education_of_employee": data.get("education_of_employee", "Bachelor's"),
+            "has_job_experience": data.get("has_job_experience", "Y"),
+            "continent": data.get("continent", "Asia"),
+            "region_of_employment": data.get("region_of_employment", "Northeast"),
+            "unit_of_wage": data.get("unit_of_wage", "Year"),
+            "full_time_position": data.get("full_time_position", "Y"),
+            "requires_job_training": data.get("requires_job_training", "N")
+        }
+        df = pd.DataFrame([row])
 
-        if data.get("has_job_experience") == "Y":
-            score += 0.15
-
-        if data.get("continent") in ["Europe", "Asia"]:
-            score += 0.05
-
-        if data.get("no_of_employees", 0) > 1000:
-            score += 0.05
-
-        probability = min(max(score, 0.1), 0.95)
-        status = "Certified" if probability >= 0.6 else "Denied"
+        proba = self.model.predict_proba(df)[0, 1]
+        status = "Certified" if proba >= 0.5 else "Denied"
 
         return {
             "status": status,
-            "probability": round(probability, 2),
-            "message": f"Predicted {status} with {round(probability*100)}% confidence"
+            "probability": round(float(proba), 2),
+            "message": f"Predicted {status} with {round(proba*100)}% confidence"
         }

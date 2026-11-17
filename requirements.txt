@@ -1,14 +1,11 @@
 pandas
 numpy
 scikit-learn
-xgboost
 lightgbm
 mlflow
 fastapi
 uvicorn
 python-multipart
 jinja2
-pymongo
-boto3
+joblib
 pyyaml
-python-dotenv
