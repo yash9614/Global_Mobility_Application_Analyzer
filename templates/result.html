@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+        .result { padding: 20px; border-radius: 8px; margin: 20px 0; }
+        .approved { background: #d4edda; color: #155724; }
+        .denied { background: #f8d7da; color: #721c24; }
+        a { color: #0066cc; }
+    </style>
+</head>
+<body>
+    <h2>Prediction Result</h2>
+    <div class="result {{ 'approved' if result.status == 'Certified' else 'denied' }}">
+        <h3>{{ result.message }}</h3>
+        <p><strong>Status:</strong> {{ result.status }}</p>
+        <p><strong>Probability:</strong> {{ result.probability }}</p>
+    </div>
+    <p><a href="/">← Try another prediction</a></p>
+</body>
+</html>
